@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
         // write your code here
-        ConvertFromBase10 convertFromBase10 = new ConvertFromBase10();
-        convertFromBase10.view();
+        DisplayAndControl displayAndControl = new DisplayAndControl();
+        displayAndControl.display();
     }
 }

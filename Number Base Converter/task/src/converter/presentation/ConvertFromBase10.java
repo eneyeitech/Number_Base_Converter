@@ -5,8 +5,8 @@ import java.util.Scanner;
 public class ConvertFromBase10 {
     private final Scanner scanner;
 
-    public ConvertFromBase10() {
-        scanner = new Scanner(System.in);
+    public ConvertFromBase10(Scanner scanner) {
+        this.scanner = scanner;
     }
 
     public void view() {
@@ -23,7 +23,7 @@ public class ConvertFromBase10 {
     // To return char for a value. For
 // example '2' is returned for 2.
 // 'A' is returned for 10. 'B' for 11
-    public char reVal(int num)
+    private char reVal(int num)
     {
         if (num >= 0 && num <= 9)
             return (char)(num + 48);
@@ -33,7 +33,7 @@ public class ConvertFromBase10 {
 
     // Function to convert a given decimal number
 // to a base 'base' and
-    public String fromDecimal(int base1, int inputNum)
+    private String fromDecimal(int base1, int inputNum)
     {
         String s = "";
 
