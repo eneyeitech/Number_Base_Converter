@@ -1024,6 +1024,262 @@ files:
         }
     }
   learner_created: false
+- name: src/converter/DisplayAndControl.java
+  visible: true
+  text: |
+    package converter;
+
+    import converter.presentation.ConvertFromBase10;
+    import converter.presentation.ConvertToBase10;
+
+    import java.math.BigInteger;
+    import java.util.Locale;
+    import java.util.Scanner;
+
+    public class DisplayAndControl {
+
+        private final Scanner scanner;
+        private final ConvertToBase10 convertToBase10;
+        private final ConvertFromBase10 convertFromBase10;
+
+        public DisplayAndControl() {
+            this.scanner = new Scanner(System.in);
+            convertFromBase10 = new ConvertFromBase10(scanner);
+            convertToBase10 = new ConvertToBase10(scanner);
+        }
+
+        public void display(){
+            int i = 1;
+            do {
+                System.out.println("Do you want to convert /from decimal or /to decimal? (To quit type /exit)");
+                String input = scanner.nextLine().toLowerCase(Locale.ROOT);
+                switch (input) {
+                    case "/from":
+                        convertFromBase10.view();
+                        break;
+                    case "/to":
+                        convertToBase10.view();
+                        break;
+                    case "/exit":
+                        i = 0;
+                        break;
+                    default:
+                        break;
+                }
+            }while(i != 0);
+            System.exit(0);
+        }
+
+        public void display1(){
+            int i = 1;
+            do {
+                System.out.print("Enter two numbers in format: {source base} {target base} (To quit type /exit) ");
+                String input = scanner.nextLine().toLowerCase(Locale.ROOT);
+                String[] arr = input.split(" ");
+                int sourceBase = 1;
+                int targetBase = 1;
+                if (arr.length == 2) {
+                     sourceBase = Integer.parseInt(arr[0]);
+                     targetBase = Integer.parseInt(arr[1]);
+                }
+                if ((sourceBase >= 2 || sourceBase <= 36) && (targetBase >= 2 && targetBase <= 36)) {
+                    input = "go";
+                }
+                //System.out.println(sourceBase);
+                //System.out.println(targetBase);
+                switch (input) {
+                    case "/exit":
+                        i = 0;
+                        break;
+                    case "go":
+                        display2(sourceBase, targetBase);
+                    default:
+                        break;
+                }
+            }while(i != 0);
+            System.exit(0);
+        }
+
+        private void display2(int s, int t){
+            int i = 1;
+            do {
+                System.out.printf("Enter number in base %s to convert to base %s (To go back type /back) ", s, t);
+                String input = scanner.nextLine().toLowerCase(Locale.ROOT);
+                switch (input) {
+                    case "/back":
+                        i = 0;
+                        break;
+                    default:
+                        BigInteger r = convertToBase10.result(input, s);
+                        String o = convertFromBase10.result(t, r);
+                        System.out.println("Conversion result: " + o + "\n");
+                        break;
+                }
+            }while(i != 0);
+
+        }
+    }
+  learner_created: true
+- name: src/converter/presentation/ConvertToBase10.java
+  visible: true
+  text: |
+    package converter.presentation;
+
+    import java.math.BigInteger;
+    import java.util.Locale;
+    import java.util.Scanner;
+
+    public class ConvertToBase10 {
+
+        private final Scanner scanner;
+
+        public ConvertToBase10(Scanner scanner) {
+            this.scanner = scanner;
+        }
+
+        public void view() {
+
+            System.out.print("Enter source number: ");
+            String line = scanner.next();
+            System.out.print("Enter source base: ");
+            int line1 = scanner.nextInt();
+            //int result = toDecimal(line.toUpperCase(Locale.ROOT), line1);
+            BigInteger /*int*/ result = toDecimal(line, line1);
+            System.out.printf("Conversion to decimal result: %s\n", result.toString());
+
+        }
+
+        // To return value of a char.
+    // For example, 2 is returned
+    // for '2'. 10 is returned
+    // for 'A', 11 for 'B'
+        private int val(char c)
+        {
+            if (c >= '0' && c <= '9')
+                return (int)c - '0';
+            else
+                //return (int)c - 'A' + 10;
+                return (int)c - 'a' + 10;
+        }
+
+        // Function to convert a
+    // number from given base
+    // 'b' to decimal
+        private /*int*/ BigInteger toDecimal(String str,
+                          int base)
+        {
+            int len = str.length();
+            int power = 1; // Initialize
+            BigInteger power1 = BigInteger.ONE;
+            // power of base
+            int num = 0; // Initialize result
+            BigInteger num1 = BigInteger.ZERO;
+            int i;
+
+            // Decimal equivalent is
+            // str[len-1]*1 + str[len-2] *
+            // base + str[len-3]*(base^2) + ...
+            for (i = len - 1; i >= 0; i--)
+            {
+                // A digit in input number
+                // must be less than
+                // number's base
+                /**if (val(str.charAt(i)) >= base)
+                {
+                    System.out.println("Invalid Number");
+                    return -1;
+                }*/
+
+                num += val(str.charAt(i)) * power;
+                int val = val(str.charAt(i));
+                BigInteger val1 = new BigInteger(String.valueOf(val));
+                BigInteger val11 = val1.multiply(power1);
+                num1 = num1.add(val11);
+                power = power * base;
+                power1 = power1.multiply(new BigInteger(String.valueOf(base)));
+            }
+
+            //return num;
+            return num1;
+        }
+
+        public /*int*/ BigInteger result(String n, int b){
+            return toDecimal(n, b);
+        }
+    }
+  learner_created: true
+- name: src/converter/presentation/ConvertFromBase10.java
+  visible: true
+  text: |
+    package converter.presentation;
+
+    import java.math.BigInteger;
+    import java.util.Scanner;
+
+    public class ConvertFromBase10 {
+        private final Scanner scanner;
+
+        public ConvertFromBase10(Scanner scanner) {
+            this.scanner = scanner;
+        }
+
+        public void view() {
+
+                System.out.print("Enter number in decimal system: ");
+                int line = scanner.nextInt();
+                System.out.print("Enter target base: ");
+                int line1 = scanner.nextInt();
+                //String result = fromDecimal(line1, line);
+            String result = fromDecimal(line1, new BigInteger(String.valueOf(line1)));
+                System.out.printf("Conversion result: %s\n", result);
+
+        }
+
+        // To return char for a value. For
+    // example '2' is returned for 2.
+    // 'A' is returned for 10. 'B' for 11
+        private char reVal(BigInteger num)
+        {
+            if (num.intValue() >= 0 && num.intValue() <= 9)
+                return (char)(num.intValue() + 48);
+            else
+                //return (char)(num - 10 + 65);
+                return (char)(num.intValue() - 10 + 97);
+        }
+
+        // Function to convert a given decimal number
+    // to a base 'base' and
+        private String fromDecimal(int base1, BigInteger inputNum)
+        {
+            String s = "";
+
+            // Convert input number is given
+            // base by repeatedly dividing it
+            // by base and taking remainder
+            //while (inputNum > 0)
+            //while (inputNum.signum() == 1)
+            do{
+                BigInteger baseBI = new BigInteger(String.valueOf(base1));
+                //s += reVal(inputNum % base1);
+                s += reVal(inputNum.remainder(baseBI) );
+                //inputNum /= base1;
+                inputNum = inputNum.divide(baseBI);
+            }while (inputNum.signum() == 1);
+            StringBuilder ix = new StringBuilder();
+
+            // append a string into StringBuilder input1
+            ix.append(s);
+
+            // Reverse the result
+            return new String(ix.reverse());
+        }
+
+        public String result(int b, BigInteger n){
+            return fromDecimal(b, n);
+        }
+
+    }
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/181/stages/916/implement#comment
 status: Unchecked
 record: -1
