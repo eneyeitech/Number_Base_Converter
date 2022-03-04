@@ -3,6 +3,7 @@ package converter;
 import converter.presentation.ConvertFromBase10;
 import converter.presentation.ConvertToBase10;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
 import java.util.Scanner;
@@ -81,12 +82,85 @@ public class DisplayAndControl {
                     i = 0;
                     break;
                 default:
-                    BigInteger r = convertToBase10.result(input, s);
-                    String o = convertFromBase10.result(t, r);
-                    System.out.println("Conversion result: " + o + "\n");
+                    String[] numberSplit = input.split("\\.");
+
+                    if (numberSplit.length == 1 || s == 1){
+                        String integerPart = convertIntegerPart(numberSplit[0], s, t);
+                        System.out.printf("Conversion result: %s\n", integerPart);
+                    } else {
+                        String integerPart = convertIntegerPart(numberSplit[0], s, t);
+                        String fractionalPart = convertFractionalPart(numberSplit[1], s, t);
+                        System.out.printf("Conversion result: %s.%s\n", integerPart, fractionalPart);
+                    }
+
+                    //BigInteger r = convertToBase10.result(input, s);
+                    //String o = convertFromBase10.result(t, r);
+                    //System.out.println("Conversion result: " + o + "\n");
                     break;
             }
         }while(i != 0);
 
+    }
+
+
+    private String convertIntegerPart(String sourceInteger, int sourceBase, int targetBase) {
+        int number = 0;
+        BigInteger number1;
+        if (sourceBase != 10) {
+            if (sourceBase == 1) {
+                number = sourceInteger.length();
+                number1 = new BigInteger(String.valueOf(number));
+            } else {
+                //number = Integer.parseInt(sourceInteger, sourceBase);
+                number1 = new BigInteger(sourceInteger, sourceBase);
+            }
+        } else {
+            //number = Integer.parseInt(sourceInteger);
+            number1 = new BigInteger(sourceInteger);
+        }
+
+        if (targetBase == 1) {
+            return "1".repeat(Math.max(0, number));
+        }
+        //return Integer.toString(number, targetBase);
+        return number1.toString(targetBase);
+    }
+
+    private String convertFractionalPart(String sourceFractional, int sourceBase, int targetBase) {
+        double decimalValue = 0.0;
+        BigDecimal decimalValue1 = BigDecimal.ZERO;
+        if (sourceBase == 10) {
+            decimalValue = Double.parseDouble("0." + sourceFractional);
+            decimalValue1 = new BigDecimal(decimalValue);
+        } else {
+            char c;
+            for (int i = 0; i < sourceFractional.length(); i++) {
+                c = sourceFractional.charAt(i);
+                decimalValue += Character.digit(c, sourceBase) / Math.pow(sourceBase, i + 1);
+                //double d = Character.digit(c, sourceBase) / (double) Math.pow(sourceBase, i + 1);
+                //BigDecimal b = new BigDecimal(Character.digit(c, sourceBase));
+                //BigDecimal p = new BigDecimal(Math.pow(sourceBase, i + 1));
+                //decimalValue1.add(b.divide(p));
+                //decimalValue1.add(new BigDecimal(Double.toString(d)));
+                decimalValue1.add(new BigDecimal(decimalValue));
+            }
+        }
+
+        StringBuilder result = new StringBuilder();
+        int decimal;
+        BigInteger decimal1;
+        for (int i = 0; i < 5; i++) {
+            double aux = decimalValue * targetBase;
+            BigDecimal aux1 = decimalValue1.multiply(new BigDecimal(String.valueOf(targetBase)));
+            decimal = (int) aux;
+            //decimal1 = aux1.toBigInteger();
+            decimal1 = new BigInteger(String.valueOf(decimal));
+            //result.append(Long.toString(decimal, targetBase));
+            result.append(decimal1.toString(targetBase));
+            decimalValue = aux - decimal;
+            //decimalValue1 = aux1.subtract(new BigDecimal(decimal1.toString()));
+            decimalValue1 = new BigDecimal(String.valueOf(decimalValue));
+        }
+        return result.toString();
     }
 }
